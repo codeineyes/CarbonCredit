@@ -110,3 +110,18 @@
         active: bool
     }
 )
+
+(define-public (create-listing (credit-id uint) (price uint) (quantity uint))
+    (begin
+        (asserts! (>= (ft-get-balance carbon-credit tx-sender) quantity) err-insufficient-balance)
+        (ok (map-set listings
+            { credit-id: credit-id }
+            {
+                seller: tx-sender,
+                price: price,
+                quantity: quantity,
+                active: true
+            }
+        ))
+    )
+)
