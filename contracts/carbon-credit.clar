@@ -51,3 +51,29 @@
         (ok (map-set authorized-verifiers verifier false))
     )
 )
+
+;; Carbon Credit Management
+(define-public (mint-credits (credit-id uint)
+                           (project-name (string-ascii 50))
+                           (location (string-ascii 50))
+                           (vintage-year uint)
+                           (quantity uint)
+                           (verification-standard (string-ascii 20))
+                           (recipient principal))
+    (begin
+        (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+        (try! (ft-mint? carbon-credit quantity recipient))
+        (ok (map-set credit-metadata
+            { credit-id: credit-id }
+            {
+                project-name: project-name,
+                location: location,
+                vintage-year: vintage-year,
+                quantity: quantity,
+                verification-standard: verification-standard,
+                verified: false,
+                verifier: tx-sender
+            }
+        ))
+    )
+)
