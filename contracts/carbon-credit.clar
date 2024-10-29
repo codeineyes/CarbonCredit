@@ -36,3 +36,18 @@
 (define-read-only (is-authorized-verifier (verifier principal))
     (default-to false (map-get? authorized-verifiers verifier))
 )
+
+;; Admin functions
+(define-public (add-verifier (verifier principal))
+    (begin
+        (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+        (ok (map-set authorized-verifiers verifier true))
+    )
+)
+
+(define-public (remove-verifier (verifier principal))
+    (begin
+        (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+        (ok (map-set authorized-verifiers verifier false))
+    )
+)
