@@ -125,3 +125,25 @@
         ))
     )
 )
+
+(define-public (purchase-listing (credit-id uint) (quantity uint))
+    (let (
+        (listing (unwrap! (map-get? listings { credit-id: credit-id }) err-invalid-credit))
+        (total-price (* quantity (get price listing)))
+    )
+    (begin
+        (asserts! (get active listing) err-invalid-credit)
+        (asserts! (<= quantity (get quantity listing)) err-insufficient-balance)
+        ;; Transfer tokens
+        (try! (stx-transfer? total-price tx-sender (get seller listing)))
+        (try! (ft-transfer? carbon-credit quantity (get seller listing) tx-sender))
+        ;; Update listing
+        (if (is-eq quantity (get quantity listing))
+            (map-set listings { credit-id: credit-id }
+                (merge listing { active: false }))
+            (map-set listings { credit-id: credit-id }
+                (merge listing { quantity: (- (get quantity listing) quantity) }))
+        )
+        (ok true)
+    ))
+)
