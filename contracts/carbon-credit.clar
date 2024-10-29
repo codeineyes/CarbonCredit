@@ -77,3 +77,16 @@
         ))
     )
 )
+
+;; Verification
+(define-public (verify-credits (credit-id uint))
+    (let ((credit (unwrap! (map-get? credit-metadata { credit-id: credit-id }) err-invalid-credit)))
+        (begin
+            (asserts! (is-authorized-verifier tx-sender) err-invalid-verifier)
+            (ok (map-set credit-metadata
+                { credit-id: credit-id }
+                (merge credit { verified: true, verifier: tx-sender })
+            ))
+        )
+    )
+)
