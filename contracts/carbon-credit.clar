@@ -90,3 +90,23 @@
         )
     )
 )
+
+;; Trading Functions
+(define-public (transfer (amount uint) (sender principal) (recipient principal))
+    (begin
+        (asserts! (>= (ft-get-balance carbon-credit sender) amount) err-insufficient-balance)
+        (try! (ft-transfer? carbon-credit amount sender recipient))
+        (ok true)
+    )
+)
+
+;; Market Functions
+(define-map listings
+    { credit-id: uint }
+    {
+        seller: principal,
+        price: uint,
+        quantity: uint,
+        active: bool
+    }
+)
